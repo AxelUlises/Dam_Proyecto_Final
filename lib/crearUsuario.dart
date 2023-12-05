@@ -55,78 +55,108 @@ class _crearusuarioState extends State<crearusuario> {
       appBar: AppBar(
         title: Text("Servicio Autenticación"),
       ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(30),
-          child: Form(
-              key: _forKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Crear Usuario",
-                    style: TextStyle(fontSize: 35, color: Colors.blue),
-                  ),
-                  SizedBox(height: 30,),
-                  TextFormField(
-                    controller: _emailCont,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Email",
-                        floatingLabelBehavior: FloatingLabelBehavior.always
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Ingrese un correo";
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      setState(() {
-                        email = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  TextFormField(
-                    controller: _contrasenaCont,
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Contraseña",
-                        floatingLabelBehavior: FloatingLabelBehavior.always
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Ingrese la contraseña";
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      setState(() {
-                        contrasena = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Al presionar el botón, valida el formulario y maneja el registro
-                      if (_forKey.currentState!.validate()) {
-                        _handleSingUp(context);
-                      }
-                    },
-                    child: Text("Registrar", style: TextStyle(
-                        fontSize: 20
-                      ),
-                    ),
-                  )
-                ],
-              )
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF3498DB),
+              Color.fromARGB(256, 55, 199, 250),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
+        child: ListView(
+          padding: EdgeInsets.only(top: 50),
+          children: [
+            Padding(
+              padding: EdgeInsets.all(30),
+              child: Form(
+                  key: _forKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 160,
+                        height: 160,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                'https://cdn-icons-png.flaticon.com/512/6387/6387969.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        "Crear Usuario",
+                        style: TextStyle(fontSize: 45, color: Colors.white, fontFamily: 'BebasNeue'),
+                      ),
+                      SizedBox(height: 10,),
+                      TextFormField(
+                        controller: _emailCont,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Email",
+                            floatingLabelBehavior: FloatingLabelBehavior.always
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Ingrese un correo";
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            email = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: _contrasenaCont,
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Contraseña",
+                            floatingLabelBehavior: FloatingLabelBehavior.always
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Ingrese la contraseña";
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            contrasena = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 15),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Al presionar el botón, valida el formulario y maneja el registro
+                          if (_forKey.currentState!.validate()) {
+                            _handleSingUp(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        ),
+                        child: Text("Registrar", style: TextStyle(
+                            fontSize: 18
+                        ),
+                        ),
+                      )
+                    ],
+                  )
+              ),
+            ),
+          ],
+        )
+
       ),
     );
   }
