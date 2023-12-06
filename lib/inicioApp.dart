@@ -1,3 +1,4 @@
+import 'package:dam_proyecto_final/login.dart';
 import 'package:flutter/material.dart';
 
 class inicioApp extends StatefulWidget {
@@ -8,7 +9,7 @@ class inicioApp extends StatefulWidget {
 }
 
 class _inicioAppState extends State<inicioApp> {
-  String titulo = "Unity Memories App";
+  String titulo = "GALLERY MEMORIES", nombre_usuario = "User", abreviatura = "U";
   int _index = 0;
 
   final descripcion = TextEditingController();
@@ -30,9 +31,9 @@ class _inicioAppState extends State<inicioApp> {
             DrawerHeader(child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(child: Text("U"),),
+                CircleAvatar(child: Text(abreviatura),),
                 SizedBox(height: 20,),
-                Text("Usuario", style: TextStyle(color: Colors.white, fontSize: 20),)
+                Text(nombre_usuario, style: TextStyle(color: Colors.white, fontSize: 20),)
               ],
             ),
               decoration: BoxDecoration(color: Colors.blue),
@@ -76,8 +77,16 @@ class _inicioAppState extends State<inicioApp> {
     if(_index == 4){
       return configuracion();
     }
-    if(_index == 5){
-      return salir();
+    if (_index == 5) {
+      // Navegar a la pantalla de login y reemplazar la actual
+      Future.delayed(Duration.zero, () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (builder) {
+            return login();
+          }),
+        );
+      });
     }
     return misEventos();
   }
@@ -349,12 +358,51 @@ class _inicioAppState extends State<inicioApp> {
     );
   }
 
-  Widget configuracion(){
-    return ListView();
+  Widget configuracion() {
+    return ListView(
+      padding: EdgeInsets.all(30),
+      children: [
+        Text("Configuraciones disponibles:"),
+        SizedBox(height: 20,),
+        TextField(
+          onChanged: (value) {
+            // Actualizar el nombre de usuario en tiempo real
+            nombre_usuario = value;
+          },
+          decoration: InputDecoration(
+              labelText: "Nombre de usuario:",
+              border: OutlineInputBorder()
+          ),
+        ),
+        SizedBox(height: 20,),
+        TextField(
+          onChanged: (value) {
+            // Actualizar el nombre de usuario en tiempo real
+            abreviatura = value;
+          },
+          decoration: InputDecoration(
+              labelText: "Abreviatura de tu usario:",
+              border: OutlineInputBorder()
+          ),
+        ),
+        SizedBox(height: 20,),
+        ElevatedButton(
+            onPressed: (){
+              setState(() {
+                nombre_usuario;
+                abreviatura;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Cambios realizados."),
+                  ),
+                );
+              });
+            },
+            child: const Text("Cambiar")
+        ),
+      ],
+    );
   }
 
-  Widget salir(){
-    return ListView();
-  }
 
 }
