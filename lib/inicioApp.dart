@@ -362,7 +362,7 @@ class _inicioAppState extends State<inicioApp> {
     return ListView(
       padding: EdgeInsets.all(30),
       children: [
-        Text("Configuraciones disponibles:"),
+        Text("Configuraciones disponibles:", style: TextStyle(fontFamily: 'BebasNeue', fontSize: 30),),
         SizedBox(height: 20,),
         TextField(
           onChanged: (value) {
