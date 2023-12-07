@@ -119,44 +119,138 @@ class _inicioAppState extends State<inicioApp> {
     }
     return misEventos();
   }
-  
-  Widget misEventos(){
+
+  Widget misEventos() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: 30),
-        Text("MIS EVENTOS", style: TextStyle(color: Colors.blue, fontSize: 30),),
+        Text(
+          "MIS EVENTOS",
+          style: TextStyle(color: Colors.blue, fontSize: 40, fontFamily: 'BebasNeue'),
+        ),
         SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            formaEventos(Icons.event, "MIS EVENTOS 1", (){
-              print("click");
-            }),
+            // Tarjeta 1
+            Card(
+              child: InkWell(
+                onTap: () {
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      // Foto en la parte superior
+                      Image.network(
+                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 10),
+                      // ID del evento y propietario
+                      Text("ID_evento: 123"),
+                      Text("Propietario: Usuario 1"),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             SizedBox(width: 20), // Espacio entre elementos
-            formaEventos(Icons.event, "Mis Eventos 2", (){
-              print("click");
-            }),
+
+            // Tarjeta 2
+            Card(
+              child: InkWell(
+                onTap: () {
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      // Foto en la parte superior
+                      Image.network(
+                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                        width: 110,
+                        height: 110,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 10),
+                      // ID del evento y propietario
+                      Text("ID_evento: 123"),
+                      Text("Propietario: Usuario 2"),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
         SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            formaEventos(Icons.event, "Mis Eventos 3", (){
-              print("click");
-            }),
+            // Tarjeta 3
+            Card(
+              child: InkWell(
+                onTap: () {
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      // Foto en la parte superior
+                      Image.network(
+                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 10),
+                      // ID del evento y propietario
+                      Text("ID_evento: 123"),
+                      Text("Propietario: Usuario 3"),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             SizedBox(width: 20), // Espacio entre elementos
-            formaEventos(Icons.event, "Mis Eventos 24", (){
-              print("click");
-            }),
+
+            // Tarjeta 4
+            Card(
+              child: InkWell(
+                onTap: () {
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      // Foto en la parte superior
+                      Image.network(
+                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 10),
+                      // ID del evento y propietario
+                      Text("ID_evento: 123"),
+                      Text("Propietario: Usuario 4"),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ],
     );
-
   }
+
+
 
   Widget formaEventos(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(
@@ -470,5 +564,4 @@ class _inicioAppState extends State<inicioApp> {
       });
     }
   }
-
 }
