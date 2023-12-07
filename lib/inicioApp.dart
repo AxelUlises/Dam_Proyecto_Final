@@ -315,6 +315,17 @@ class _inicioAppState extends State<inicioApp> {
                           return Card(
                             child: InkWell(
                               onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => eventoIndividual(
+                                      descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
+                                      tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
+                                      propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
+                                      id: listaJSON.data?[indice]['id'] ?? '',
+                                    ),
+                                  ),
+                                );
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(20.0),
@@ -331,7 +342,6 @@ class _inicioAppState extends State<inicioApp> {
                                     // ID del evento y propietario
                                     Text(listaJSON.data?[indice]['descripcion']),
                                     Text("Tipo de evento ${listaJSON.data?[indice]['tipoEvento']}"),
-                                    Text("Evento de:  ${listaJSON.data?[indice]['nombrePropietario']}"),
                                   ],
                                 ),
                               ),

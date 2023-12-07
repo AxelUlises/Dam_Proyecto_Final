@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 
 var baseremota = FirebaseFirestore.instance;
+var carpetaRemota = FirebaseStorage.instance;
 
 class DB{
   static Future<String> creaEvento(Map<String, dynamic> evento) async {
@@ -137,6 +139,24 @@ class DB{
   }
 
 
+
+}
+
+class CR{
+  static Future subirArchivo(String path, String nombreImagen, String nombreCarpeta) async {
+    var file = File(path);
+
+    return await carpetaRemota.ref("$nombreCarpeta/$nombreImagen").putFile(file);
+  }
+
+  static Future<ListResult> mostrarTodos( nombreCarpeta) async{
+    String carpeta = nombreCarpeta;
+    return await carpetaRemota.ref(carpeta).listAll();
+  }
+
+  static Future<String> obtenerURLimagen(String nombreCarpeta,String nombre)async{
+    return await carpetaRemota.ref("$nombreCarpeta/$nombre").getDownloadURL();
+  }
 
 }
 

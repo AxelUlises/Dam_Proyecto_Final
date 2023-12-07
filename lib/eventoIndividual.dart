@@ -1,4 +1,5 @@
 import 'package:dam_proyecto_final/serviciosremotos.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,6 @@ class eventoIndividual extends StatefulWidget {
   final String tipoEvento;
   final String id;
   final String propietario;
-
   eventoIndividual({required this.descripcion, required this.tipoEvento, required this.id, required this.propietario});
 
   @override
@@ -16,7 +16,9 @@ class eventoIndividual extends StatefulWidget {
 }
 
 class _eventoIndividualState extends State<eventoIndividual> {
+  String archivoRemoto = "";
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -51,10 +53,81 @@ class _eventoIndividualState extends State<eventoIndividual> {
             SizedBox(height: 10),
 
             // AQUÍ VAN LAS FOTOS
+            Container(
+              height: 450,
+              child: FutureBuilder(
+                future: CR.mostrarTodos(widget.descripcion),
+                builder: (context, listaRegreso) {
+                  if (listaRegreso.hasData) {
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 8.0,
+                      ),
+                      itemCount: listaRegreso.data?.items.length,
+                      itemBuilder: (context, indice) {
+                        final nombreImagen = listaRegreso.data!.items[indice].name;
 
+                        return Padding(
+                          padding: EdgeInsets.all(10),
+                          child: FutureBuilder(
+                            future: CR.obtenerURLimagen(widget.descripcion, nombreImagen),
+                            builder: (context, URL) {
+                              if (URL.hasData) {
+                                return Container(
+                                  child: Image.network(URL.data!, fit: BoxFit.cover),
+                                );
+                              } else if (URL.hasError) {
+                                return Text('Error loading image');
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  } else if (listaRegreso.hasError) {
+                    // Return an error widget if there is an error
+                    return Text('Error loading data');
+                  } else {
+                    // Return a loading indicator while the future is still in progress
+                    return CircularProgressIndicator();
+                  }
+                },
+              ),
+            ),
+
+
+            SizedBox(height: 10,),
             Center(
               child: ElevatedButton(
-                  onPressed: (){},
+                  onPressed: () async{
+                    final archivoAEnviar = await FilePicker.platform.pickFiles(
+                      allowMultiple: false,
+                      type: FileType.custom,
+                      allowedExtensions: ['png','jpg','jpeg']
+                    );
+
+                    if(archivoAEnviar==null){
+                      setState(() {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ERROR! No se seleccionó ARCHIVO")));
+                      });
+                      return;
+                    }
+
+                    var path = archivoAEnviar.files.single.path!!;
+                    var nombre = archivoAEnviar.files.single.name!!;
+                    var nombreCarpeta = widget.descripcion;
+
+                    setState(() {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("SUBIENDO ARCHIVO")));
+                    });
+
+                    CR.subirArchivo(path, nombre, nombreCarpeta);
+
+                  },
                   child: Text("AGREGAR FOTOS")
               ),
             )
