@@ -121,133 +121,90 @@ class _inicioAppState extends State<inicioApp> {
   }
 
   Widget misEventos() {
-    return Column(
+    return FutureBuilder(
+        future: DB.misEventos(uid),
+        builder: (context, listaJSON){
+          if(listaJSON.hasData){
+            print("Eventos encontrados: ${listaJSON.data} para el usuario $uid");
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 30),
+                Text(
+                  "MIS EVENTOS",
+                  style: TextStyle(color: Colors.blue, fontSize: 40, fontFamily: 'BebasNeue'),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: listaJSON.data?.length,
+                        itemBuilder: (context, indice){
+                          return Card(
+                            child: InkWell(
+                              onTap: () {
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  children: [
+                                    // Foto en la parte superior
+                                    Image.network(
+                                      "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    SizedBox(height: 10),
+                                    // ID del evento y propietario
+                                    Text(listaJSON.data?[indice]['descripcion']),
+                                    Text("Tipo de evento ${listaJSON.data?[indice]['tipoEvento']}"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        )
+                )
+              ],
+            );
+          }
+          return Center(child: CircularProgressIndicator());
+        }
+    );
+
+    Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(height: 30),
-        Text(
-          "MIS EVENTOS",
-          style: TextStyle(color: Colors.blue, fontSize: 40, fontFamily: 'BebasNeue'),
-        ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Tarjeta 1
-            Card(
-              child: InkWell(
-                onTap: () {
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      // Foto en la parte superior
-                      Image.network(
-                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 10),
-                      // ID del evento y propietario
-                      Text("ID_evento: 123"),
-                      Text("Propietario: Usuario 1"),
-                    ],
+        Card(
+          child: InkWell(
+            onTap: () {
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  // Foto en la parte superior
+                  Image.network(
+                    "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
                   ),
-                ),
+                  SizedBox(height: 10),
+                  // ID del evento y propietario
+                  Text("ID_evento: 123"),
+                  Text("Propietario: Usuario 1"),
+                ],
               ),
             ),
-            SizedBox(width: 20), // Espacio entre elementos
+          ),
+        ),
 
-            // Tarjeta 2
-            Card(
-              child: InkWell(
-                onTap: () {
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      // Foto en la parte superior
-                      Image.network(
-                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                        width: 110,
-                        height: 110,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 10),
-                      // ID del evento y propietario
-                      Text("ID_evento: 123"),
-                      Text("Propietario: Usuario 2"),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Tarjeta 3
-            Card(
-              child: InkWell(
-                onTap: () {
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      // Foto en la parte superior
-                      Image.network(
-                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 10),
-                      // ID del evento y propietario
-                      Text("ID_evento: 123"),
-                      Text("Propietario: Usuario 3"),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 20), // Espacio entre elementos
-
-            // Tarjeta 4
-            Card(
-              child: InkWell(
-                onTap: () {
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      // Foto en la parte superior
-                      Image.network(
-                        "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 10),
-                      // ID del evento y propietario
-                      Text("ID_evento: 123"),
-                      Text("Propietario: Usuario 4"),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ],
     );
+
   }
 
 
@@ -305,45 +262,58 @@ class _inicioAppState extends State<inicioApp> {
 
 
   Widget invitaciones(){
-    return ListView(
-      padding: EdgeInsets.all(40),
-      children: [
-       Center(
-         child: Text(
-           "INVITACIONES",
-           style: TextStyle(
-             fontSize: 25,
-             color: Colors.red,
-             fontWeight: FontWeight.bold,
-           ),
-         ),
-       ),
-        SizedBox(height: 20),
-        formaInvitaciones(Icons.event, "INVITACION 1", (){
-          print("click");
-        }),
-        SizedBox(height: 20),
-        formaInvitaciones(Icons.event, "INVITACION 2", (){
-          print("click");
-        }),
-        SizedBox(height: 20),
-        formaInvitaciones(Icons.event, "INVITACION 3", (){
-          print("click");
-        }),
-        SizedBox(height: 20),
-        formaInvitaciones(Icons.event, "INVITACION 4", (){
-          print("click");
-        }),
-        SizedBox(height: 20),
-        formaInvitaciones(Icons.event, "INVITACION 5", (){
-          print("click");
-        }),
-        SizedBox(height: 20),
-        formaInvitaciones(Icons.event, "INVITACION 6", (){
-          print("click");
-        }),
-        SizedBox(height: 20),
-        ],
+    return FutureBuilder(
+        future: DB.misInvitaciones(uid),
+        builder: (context, listaJSON){
+          if(listaJSON.hasData){
+            print("Invitaciones encontradas: ${listaJSON.data} para el usuario $uid");
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 30),
+                Text(
+                  "MIS INVITACIONES",
+                  style: TextStyle(color: Colors.blue, fontSize: 40, fontFamily: 'BebasNeue'),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: listaJSON.data?.length,
+                        itemBuilder: (context, indice){
+                          return Card(
+                            child: InkWell(
+                              onTap: () {
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  children: [
+                                    // Foto en la parte superior
+                                    Image.network(
+                                      "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    SizedBox(height: 10),
+                                    // ID del evento y propietario
+                                    Text(listaJSON.data?[indice]['descripcion']),
+                                    Text("Tipo de evento ${listaJSON.data?[indice]['tipoEvento']}"),
+                                    Text("Evento de:  ${listaJSON.data?[indice]['nombrePropietario']}"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                    )
+                )
+              ],
+            );
+          }
+          return Center(child: CircularProgressIndicator());
+        }
     );
   }
 
@@ -446,6 +416,7 @@ class _inicioAppState extends State<inicioApp> {
                 User? user = FirebaseAuth.instance.currentUser;
                 var jsonTemporal = {
                   'propietario': user?.uid.toString(),
+                  'nombrePropietario': nombre_usuario,
                   'descripcion': descripcion.text,
                   'tipoEvento': tipoEvento.text,
                   'fechainicio': fechaInicio.text,

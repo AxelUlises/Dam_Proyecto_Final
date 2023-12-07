@@ -49,4 +49,37 @@ class DB{
     }
   }
 
+  static Future<List> misEventos(String uid) async{
+    List temp = [];
+    var query = await baseremota.collection("eventos").where('propietario', isEqualTo: uid).get();
+
+    query.docs.forEach((element) {
+      Map<String, dynamic> dato = element.data();
+      dato.addAll({
+        'id': element.id
+      });
+
+      temp.add(dato);
+    });
+
+    return temp;
+  }
+
+  static Future<List> misInvitaciones(String uid) async{
+    List temp = [];
+    var query = await baseremota.collection("eventos").where('invitados', arrayContains: uid).get();
+
+    query.docs.forEach((element) {
+      Map<String, dynamic> dato = element.data();
+      dato.addAll({
+        'id': element.id
+      });
+
+      temp.add(dato);
+    });
+
+    return temp;
+  }
+
+
 }
