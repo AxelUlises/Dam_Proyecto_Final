@@ -1,3 +1,4 @@
+import 'package:dam_proyecto_final/eventoIndividual.dart';
 import 'package:dam_proyecto_final/login.dart';
 import 'package:dam_proyecto_final/serviciosremotos.dart';
 import 'package:flutter/material.dart';
@@ -32,8 +33,6 @@ class _inicioAppState extends State<inicioApp> {
   String tevento = "";
 
 
-
-
   @override
 
   void setUser() async {
@@ -56,7 +55,6 @@ class _inicioAppState extends State<inicioApp> {
     setUser();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +153,17 @@ class _inicioAppState extends State<inicioApp> {
                           return Card(
                             child: InkWell(
                               onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => eventoIndividual(
+                                      descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
+                                      tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
+                                      propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
+                                      id: listaJSON.data?[indice]['id'] ?? '',
+                                    ),
+                                  ),
+                                );
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(20.0),
@@ -187,7 +196,7 @@ class _inicioAppState extends State<inicioApp> {
     );
 
   }
-  
+
   Widget formaEventos(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -251,7 +260,6 @@ class _inicioAppState extends State<inicioApp> {
                 msjBuscar = msj;
               });
 
-
             },
             child: Text("BUSCAR")),
           SizedBox(height: 20,),
@@ -278,11 +286,11 @@ class _inicioAppState extends State<inicioApp> {
 
               DB.agregarInvitado(numInvitacion.text, uid);
             },
-            child: Text("AGREGAR")),
+            child: Text("AGREGAR")
+        ),
      ],
     );
   }
-
 
   Widget invitaciones(){
     return FutureBuilder(
