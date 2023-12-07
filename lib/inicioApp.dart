@@ -14,7 +14,7 @@ class inicioApp extends StatefulWidget {
 class _inicioAppState extends State<inicioApp> {
   String titulo = "GALLERY MEMORIES", nombre_usuario = "User", abreviatura = "U";
   List eventos = ["Bautizo", "Fiesta de cumpleaños", "Boda", "XV Años", "Primera comunión"];
-  String eventoSeleccionado = "";
+  String eventoSeleccionado = ""; String uid ="";
   int _index = 0;
 
   final descripcion = TextEditingController();
@@ -23,12 +23,28 @@ class _inicioAppState extends State<inicioApp> {
   final fechaFinal  = TextEditingController();
 
   @override
-  void initState()  {
-    User? user = FirebaseAuth.instance.currentUser;
 
-    nombre_usuario  = DB.recuperarNombre(user as String) as String;
-    abreviatura = DB.recuperarAbr(user as String) as String;
+  void setUser() async {
+
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      uid = user.uid;
+      print("Sesion iniciada con el ID: $uid");
+      List<String> datosUsuario = await DB.recuperarDatos(uid);
+
+      setState(() {
+        uid = user.uid;
+        nombre_usuario = datosUsuario[0];
+        abreviatura = datosUsuario[1];
+      });
+    }
   }
+
+  void initState() {
+    setUser();
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,46 +153,6 @@ class _inicioAppState extends State<inicioApp> {
             }),
           ],
         ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            formaEventos(Icons.event, "Mis Eventos 3", (){
-              print("click");
-            }),
-            SizedBox(width: 20), // Espacio entre elementos
-            formaEventos(Icons.event, "Mis Eventos 24", (){
-              print("click");
-            }),
-          ],
-        ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            formaEventos(Icons.event, "Mis Eventos 3", (){
-              print("click");
-            }),
-            SizedBox(width: 20), // Espacio entre elementos
-            formaEventos(Icons.event, "Mis Eventos 24", (){
-              print("click");
-            }),
-          ],
-        ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            formaEventos(Icons.event, "Mis Eventos 3", (){
-              print("click");
-            }),
-            SizedBox(width: 20), // Espacio entre elementos
-            formaEventos(Icons.event, "Mis Eventos 24", (){
-              print("click");
-            }),
-          ],
-        ),
-        SizedBox(height: 20),
       ],
     );
 
@@ -470,14 +446,9 @@ class _inicioAppState extends State<inicioApp> {
         SizedBox(height: 20,),
         ElevatedButton(
             onPressed: (){
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Cambios realizados")));
               setState(() {
-                nombre_usuario;
-                abreviatura;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Cambios realizados."),
-                  ),
-                );
+                DB.actualizarDatosUsuario(uid,nombre_usuario,abreviatura);
               });
             },
             child: const Text("Cambiar")

@@ -31,10 +31,9 @@ class _crearusuarioState extends State<crearusuario> {
       User? user = FirebaseAuth.instance.currentUser;
       var usuario = {
         'idUsuario': user?.uid,
-        'nombre:': nombre,
+        'nombre': nombre,
         'nickname': email.substring(0,2),
         'email': email,
-        'eventos': [{}]
       };
       DB.creaUsuario(usuario);
       // Muestra un SnackBar con el correo del usuario registrado

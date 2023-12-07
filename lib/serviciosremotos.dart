@@ -14,42 +14,39 @@ class DB{
     return eventoRef.id;
   }
 
-  static Future<String> recuperarNombre(String iud) async {
-    var query = await FirebaseFirestore.instance.collection("usuarios").where('idUsuario', isEqualTo: iud).get();
+  static Future<List<String>> recuperarDatos(String uid) async {
+    var query = await baseremota.collection("usuarios").where('idUsuario', isEqualTo: uid).get();
+    List<String> temporal = List.filled(2, ''); // Inicializa la lista con dos elementos vacíos.
 
-    if (query.docs.isNotEmpty) {
-      // Accede al primer documento resultante
-      var primerDocumento = query.docs.first;
+    query.docs.forEach((element) {
+      Map<String, dynamic> mapa = element.data();
+      temporal[0] = mapa['nombre'];
+      temporal[1] = mapa['nickname'];
+    });
 
-      // Obtén el valor del campo 'nombre'
-      var nombre = primerDocumento['nombre'];
-
-      // Devuelve el nombre
-      return nombre ?? ''; // Asegúrate de manejar el caso en el que el campo 'nombre' podría ser nulo
-    } else {
-      // Manejar el caso en el que no se encontraron documentos
-      return ''; // Puedes devolver una cadena vacía o algún valor predeterminado
-    }
+    return temporal;
   }
 
-  static Future<String> recuperarAbr(String iud) async {
-    var query = await FirebaseFirestore.instance.collection("usuarios").where('nickname', isEqualTo: iud).get();
-
-    if (query.docs.isNotEmpty) {
-      // Accede al primer documento resultante
-      var primerDocumento = query.docs.first;
-
-      // Obtén el valor del campo 'nombre'
-      var nombre = primerDocumento['nickname'];
-
-      // Devuelve el nombre
-      return nombre ?? ''; // Asegúrate de manejar el caso en el que el campo 'nombre' podría ser nulo
-    } else {
-      // Manejar el caso en el que no se encontraron documentos
-      return ''; // Puedes devolver una cadena vacía o algún valor predeterminado
+  static Future<void> actualizarDatosUsuario(String uid, String nuevoNombre, String nuevoNickname) async {
+    try {
+      var query = await FirebaseFirestore.instance.collection("usuarios").where('idUsuario', isEqualTo: uid).get();
+      String idDoc = "";
+      if (query.docs.isNotEmpty) {
+        // Obtener el ID del primer documento que cumple con la consulta
+        var idDocumento = query.docs.first.id;
+        await FirebaseFirestore.instance.collection("usuarios").doc(idDocumento).update({
+          'nombre': nuevoNombre,
+          'nickname': nuevoNickname,
+        });
+        print("No hay al encontrar el documento del usuario $uid");
+      } else {
+        print("Error al encontrar el documento del usuario $uid");
+        return null;
+      }
+    } catch (e) {
+      print("Error al obtener el ID del documento: $e");
+      return null;
     }
   }
-  
-  
 
 }
