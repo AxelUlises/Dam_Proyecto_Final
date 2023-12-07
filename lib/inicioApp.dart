@@ -1,5 +1,8 @@
 import 'package:dam_proyecto_final/login.dart';
+import 'package:dam_proyecto_final/serviciosremotos.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 class inicioApp extends StatefulWidget {
   const inicioApp({super.key});
@@ -10,12 +13,22 @@ class inicioApp extends StatefulWidget {
 
 class _inicioAppState extends State<inicioApp> {
   String titulo = "GALLERY MEMORIES", nombre_usuario = "User", abreviatura = "U";
+  List eventos = ["Bautizo", "Fiesta de cumpleaños", "Boda", "XV Años", "Primera comunión"];
+  String eventoSeleccionado = "";
   int _index = 0;
 
   final descripcion = TextEditingController();
   final fechaInicio = TextEditingController();
   final tipoEvento  = TextEditingController();
   final fechaFinal  = TextEditingController();
+
+  @override
+  void initState()  {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    nombre_usuario  = DB.recuperarNombre(user as String) as String;
+    abreviatura = DB.recuperarAbr(user as String) as String;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -306,6 +319,27 @@ class _inicioAppState extends State<inicioApp> {
           ),
         ),
         SizedBox(height: 15,),
+        DropdownButtonFormField(
+          value: eventos.first,
+          items: eventos.map((e) {
+            return DropdownMenuItem(
+              child: Text(e),
+              value: e,
+            );
+          }).toList(),
+          onChanged: (item) {
+            setState(() {
+              eventoSeleccionado = item.toString();
+              tipoEvento.text = eventoSeleccionado;
+            });
+          },
+          decoration: InputDecoration(
+              labelText: "TIPO DE EVENTO",
+              border: OutlineInputBorder(),
+              floatingLabelBehavior: FloatingLabelBehavior.always
+          ),
+        ),
+        SizedBox(height: 15,),
         TextField(
           controller: fechaInicio,
           decoration: InputDecoration(
@@ -313,36 +347,84 @@ class _inicioAppState extends State<inicioApp> {
               border: OutlineInputBorder(),
               floatingLabelBehavior: FloatingLabelBehavior.always
           ),
-          keyboardType: TextInputType.number,
-        ),
-        SizedBox(height: 15,),
-        TextField(
-          controller: tipoEvento,
-          decoration: InputDecoration(
-              labelText: "TIPO EVENTO:",
-              border: OutlineInputBorder(),
-              floatingLabelBehavior: FloatingLabelBehavior.always
-          ),
+          textAlign: TextAlign.center,
+          readOnly: true,
+          onTap: () {
+            _selectDate(fechaInicio);
+          },
         ),
         SizedBox(height: 15,),
         TextField(
           controller: fechaFinal,
           decoration: InputDecoration(
-              labelText: "FECHA FINAL ",
+              labelText: "FECHA FINAL:",
               border: OutlineInputBorder(),
               floatingLabelBehavior: FloatingLabelBehavior.always
           ),
-          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          readOnly: true,
+          onTap: () {
+            _selectDate(fechaFinal);
+          },
         ),
         SizedBox(height: 15,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             ElevatedButton(
-                onPressed: (){
+              onPressed: () {
+                User? user = FirebaseAuth.instance.currentUser;
+                var jsonTemporal = {
+                  'propietario': user?.uid.toString(),
+                  'descripcion': descripcion.text,
+                  'tipoEvento': tipoEvento.text,
+                  'fechainicio': fechaInicio.text,
+                  'fechafinal': fechaFinal.text,
+                  'fotos': [],
+                };
 
-                },
-                child: Text("Crear")
+                DB.creaEvento(jsonTemporal).then((idEvento) {
+                  descripcion.text = "";
+                  tipoEvento.text = "";
+                  fechaInicio.text = "";
+                  fechaFinal.text = "";
+
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Center(
+                        child: AlertDialog(
+                          title: Text("EVENTO GENERADO"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("El ID de tu evento es:"),
+                              SizedBox(height: 10),
+                              SelectableText(idEvento, style: TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: idEvento));
+                                Navigator.of(context).pop(); // Cerrar el AlertDialog
+                              },
+                              child: Text("Copiar enlace"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Cerrar el AlertDialog
+                              },
+                              child: Text("Cerrar"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                });
+              },
+              child: Text("Crear"),
             ),
             ElevatedButton(
                 onPressed: (){
@@ -404,5 +486,18 @@ class _inicioAppState extends State<inicioApp> {
     );
   }
 
+  Future<void> _selectDate(TextEditingController controlador) async {
+    DateTime? _picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100));
+
+    if (_picked != null) {
+      setState(() {
+        controlador.text = _picked.toString().split(" ")[0];
+      });
+    }
+  }
 
 }

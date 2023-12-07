@@ -1,3 +1,4 @@
+import 'package:dam_proyecto_final/serviciosremotos.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login.dart';
@@ -14,9 +15,10 @@ class _crearusuarioState extends State<crearusuario> {
   final GlobalKey<FormState> _forKey = GlobalKey<FormState>();
   TextEditingController _emailCont = TextEditingController();
   TextEditingController _contrasenaCont = TextEditingController();
-
+  TextEditingController _username = TextEditingController();
   String email = "";
   String contrasena = "";
+  String nombre = "";
 
   // Función para manejar el registro de usuario
   void _handleSingUp(BuildContext context) async {
@@ -26,7 +28,15 @@ class _crearusuarioState extends State<crearusuario> {
         email: email,
         password: contrasena,
       );
-
+      User? user = FirebaseAuth.instance.currentUser;
+      var usuario = {
+        'idUsuario': user?.uid,
+        'nombre:': nombre,
+        'nickname': email.substring(0,2),
+        'email': email,
+        'eventos': [{}]
+      };
+      DB.creaUsuario(usuario);
       // Muestra un SnackBar con el correo del usuario registrado
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -92,6 +102,27 @@ class _crearusuarioState extends State<crearusuario> {
                         style: TextStyle(fontSize: 45, color: Colors.white, fontFamily: 'BebasNeue'),
                       ),
                       SizedBox(height: 10,),
+                      TextFormField(
+                        controller: _username,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Nombre",
+                            floatingLabelBehavior: FloatingLabelBehavior.always
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Ingrese un nombre de usuario";
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            nombre = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20,),
                       TextFormField(
                         controller: _emailCont,
                         keyboardType: TextInputType.text,
