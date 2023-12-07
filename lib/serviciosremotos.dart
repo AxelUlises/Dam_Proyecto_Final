@@ -29,12 +29,11 @@ class DB{
 
   static Future<void> actualizarDatosUsuario(String uid, String nuevoNombre, String nuevoNickname) async {
     try {
-      var query = await FirebaseFirestore.instance.collection("usuarios").where('idUsuario', isEqualTo: uid).get();
-      String idDoc = "";
+      var query = await baseremota.collection("usuarios").where('idUsuario', isEqualTo: uid).get();
       if (query.docs.isNotEmpty) {
         // Obtener el ID del primer documento que cumple con la consulta
         var idDocumento = query.docs.first.id;
-        await FirebaseFirestore.instance.collection("usuarios").doc(idDocumento).update({
+        await baseremota.collection("usuarios").doc(idDocumento).update({
           'nombre': nuevoNombre,
           'nickname': nuevoNickname,
         });
@@ -81,5 +80,70 @@ class DB{
     return temp;
   }
 
+  static Future<List> buscarInvitacion(String idinvitacion) async {
+    List temp = [];
+
+    try {
+      var documento = await baseremota.collection("eventos").doc(idinvitacion).get();
+
+      if (documento.exists) {
+        // El documento existe, puedes acceder a sus datos
+        var datos = documento.data();
+        print("Datos del documento con ID $idinvitacion: $datos");
+
+        temp.add(documento.data());
+        print(temp);
+      } else {
+        // El documento no existe
+        print("No se encontró ningún documento con el ID $idinvitacion");
+      }
+
+
+    } catch (e) {
+      // Manejar el error según sea necesario
+      print("Error al obtener el documento: $e");
+    }
+
+    return temp;
+
+  }
+
+  static Future agregarInvitado(String id, String uid) async {
+    try {
+      // Referencia al documento en la colección "eventos"
+      var referenciaEvento = await baseremota.collection("eventos").doc(id).get().then((value) {
+        if (value.exists) {
+          // Verificar si el documento existe antes de acceder a sus datos
+          Map<String, dynamic>? mapa = value.data();
+
+          if (mapa != null && mapa.isNotEmpty) {
+            List<dynamic> idInvitado = mapa['invitados'] ?? [];
+            idInvitado.add(uid);
+
+            baseremota.collection("eventos").doc(id).update({'invitados': idInvitado});
+          } else {
+            print("El documento está vacío o no contiene datos.");
+          }
+        } else {
+          print("El documento con ID $id no existe.");
+        }
+      });
+
+      print("Invitado agregado con éxito al evento con ID $id");
+    } catch (e) {
+      // Manejar el error según sea necesario
+      print("Error al agregar invitado: $e");
+    }
+  }
+
+
 
 }
+
+
+
+
+
+
+
+

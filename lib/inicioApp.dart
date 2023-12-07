@@ -14,13 +14,25 @@ class inicioApp extends StatefulWidget {
 class _inicioAppState extends State<inicioApp> {
   String titulo = "GALLERY MEMORIES", nombre_usuario = "User", abreviatura = "U";
   List eventos = ["Bautizo", "Fiesta de cumpleaños", "Boda", "XV Años", "Primera comunión"];
-  String eventoSeleccionado = ""; String uid ="";
+  String eventoSeleccionado = "";
+  String uid ="";
   int _index = 0;
+  String msjBuscar = "";
 
   final descripcion = TextEditingController();
   final fechaInicio = TextEditingController();
   final tipoEvento  = TextEditingController();
   final fechaFinal  = TextEditingController();
+  final numInvitacion  = TextEditingController();
+
+  String propietario = "";
+  String des = "";
+  String fini = "";
+  String ffin = "";
+  String tevento = "";
+
+
+
 
   @override
 
@@ -28,7 +40,7 @@ class _inicioAppState extends State<inicioApp> {
 
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      uid = user.uid;
+    uid = user.uid;
       print("Sesion iniciada con el ID: $uid");
       List<String> datosUsuario = await DB.recuperarDatos(uid);
 
@@ -240,7 +252,7 @@ class _inicioAppState extends State<inicioApp> {
         ),
         SizedBox(height: 20,),
         TextField(
-          controller: descripcion,
+          controller: numInvitacion,
           decoration: InputDecoration(
               labelText: "NUMERO DE INVITACION:",
               border: OutlineInputBorder(),
@@ -250,11 +262,55 @@ class _inicioAppState extends State<inicioApp> {
         ),
         SizedBox(height: 20,),
         ElevatedButton(
-            onPressed: (){},
+            onPressed: () async {
+
+              List <dynamic> jsonTemporal =  await DB.buscarInvitacion(numInvitacion.text);
+
+
+               propietario = jsonTemporal[0]['nombrePropietario'];
+               des = jsonTemporal[0]['descripcion'];
+               fini = jsonTemporal[0]['fechainicio'];
+               ffin = jsonTemporal[0]['fechafinal'];
+               tevento = jsonTemporal[0]['tipoEvento'];
+
+
+              String msj = ""
+                  "Propietario: $propietario\n\n"
+                  "Descripcion: $des \n\n"
+                  "Fecha Inicio: $fini \n\n"
+                  "Fecha Final: $ffin \n\n"
+                  "Tipo de evento: $tevento";
+              setState(() {
+                msjBuscar = msj;
+              });
+
+
+            },
             child: Text("BUSCAR")),
-        SizedBox(height: 200,),
+          SizedBox(height: 20,),
+        Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Propietario: $propietario", style: TextStyle(fontWeight: FontWeight.bold),),
+              SizedBox(height: 8.0),
+              Text("Descripción: $des" , style: TextStyle(fontWeight: FontWeight.bold),),
+              SizedBox(height: 8.0),
+              Text("Fecha de Inicio: $fini", style: TextStyle(fontWeight: FontWeight.bold),),
+              SizedBox(height: 8.0),
+              Text("Fecha de Finalización: $ffin", style: TextStyle(fontWeight: FontWeight.bold),),
+              SizedBox(height: 8.0),
+              Text("Tipo de Evento: $tevento", style: TextStyle(fontWeight: FontWeight.bold),),
+            ],
+          ),
+        ),
+        SizedBox(height: 100,),
         ElevatedButton(
-            onPressed: (){},
+            onPressed: (){
+
+              DB.agregarInvitado(numInvitacion.text, uid);
+            },
             child: Text("AGREGAR")),
      ],
     );
@@ -335,9 +391,6 @@ class _inicioAppState extends State<inicioApp> {
       ),
     );
   }
-
-
-
 
   Widget crearEvento(){
     return ListView(
@@ -422,6 +475,7 @@ class _inicioAppState extends State<inicioApp> {
                   'fechainicio': fechaInicio.text,
                   'fechafinal': fechaFinal.text,
                   'fotos': [],
+                  'invitados': [],
                 };
 
                 DB.creaEvento(jsonTemporal).then((idEvento) {
@@ -535,4 +589,5 @@ class _inicioAppState extends State<inicioApp> {
       });
     }
   }
+
 }
