@@ -186,41 +186,8 @@ class _inicioAppState extends State<inicioApp> {
         }
     );
 
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Card(
-          child: InkWell(
-            onTap: () {
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  // Foto en la parte superior
-                  Image.network(
-                    "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(height: 10),
-                  // ID del evento y propietario
-                  Text("ID_evento: 123"),
-                  Text("Propietario: Usuario 1"),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-      ],
-    );
-
   }
-
-
-
+  
   Widget formaEventos(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
