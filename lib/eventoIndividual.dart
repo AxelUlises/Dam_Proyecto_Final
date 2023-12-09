@@ -102,6 +102,9 @@ class _eventoIndividualState extends State<eventoIndividual> {
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
+                                        // Almacenar el contexto en una variable local
+                                        BuildContext dialogContext = context;
+
                                         return Dialog(
                                           child: Stack(
                                             children: [
@@ -110,27 +113,34 @@ class _eventoIndividualState extends State<eventoIndividual> {
                                                 top: 10,
                                                 right: 10,
                                                 child: Opacity(
-                                                  opacity: widget.isMine ? 1.0 : 0.0, // Si isMine es true, la opacidad es 1.0 (totalmente visible), de lo contrario, 0.0 (totalmente transparente)
+                                                  opacity: widget.isMine ? 1.0 : 0.0,
                                                   child: IgnorePointer(
                                                     ignoring: !widget.isMine,
                                                     child: IconButton(
-                                                      icon: Icon(Icons.delete, color: Colors.white,),
+                                                      icon: Icon(Icons.delete, color: Colors.white),
                                                       onPressed: () {
-                                                        //BORRAR FOTO
-                                                        CR.eliminarImagen(widget.descripcion, nombreImagen).then((value) {
-                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("IMAGEN ELIMINADA.")));
+                                                        // BORRAR FOTO
+                                                        CR.eliminarImagen(widget.id, nombreImagen).then((value) {
+                                                          ScaffoldMessenger.of(dialogContext).showSnackBar(SnackBar(content: Text("IMAGEN ELIMINADA.")));
+                                                          setState(() {
+                                                            // Actualizar el estado si es necesario
+                                                          });
+
+                                                          // Usar la variable dialogContext en lugar de context
+                                                          Navigator.of(dialogContext).pop();
                                                         });
                                                       },
                                                     ),
-                                                    ),
-                                                  )
+                                                  ),
                                                 ),
+                                              ),
                                             ],
                                           ),
                                         );
                                       },
                                     );
                                   },
+
                                   child: Container(
                                     child: Image.network(URL.data!, fit: BoxFit.cover),
                                   ),
@@ -205,11 +215,11 @@ class _eventoIndividualState extends State<eventoIndividual> {
           var nombre = archivoAEnviar.files.single.name!!;
           var nombreCarpeta = widget.id;
 
-          setState(() {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("SUBIENDO ARCHIVO")));
+          CR.subirArchivo(path, nombre, nombreCarpeta).then((value) {
+            setState(() {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("SUBIENDO ARCHIVO")));
+            });
           });
-
-          CR.subirArchivo(path, nombre, nombreCarpeta);
 
         },
         child: Icon(Icons.add),
