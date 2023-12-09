@@ -9,7 +9,8 @@ class eventoIndividual extends StatefulWidget {
   final String tipoEvento;
   final String id;
   final String propietario;
-  eventoIndividual({required this.descripcion, required this.tipoEvento, required this.id, required this.propietario});
+  final bool isMine;
+  eventoIndividual({required this.descripcion, required this.tipoEvento, required this.id, required this.propietario, required this.isMine});
 
   @override
   State<eventoIndividual> createState() => _eventoIndividualState();
@@ -17,9 +18,30 @@ class eventoIndividual extends StatefulWidget {
 
 class _eventoIndividualState extends State<eventoIndividual> {
   String archivoRemoto = "";
+  String estatusEvento = "";
+
+  void setStatus() async {
+      bool? estado = await DB.obtenerEstado(widget.id);
+
+      setState(() {
+        if(estado==true){
+          estatusEvento = "CERRAR EVENTO";
+        }else{
+          estatusEvento = "ABRIR EVENTO";
+        }
+      });
+
+  }
+
+  void initState() {
+    setStatus();
+    super.initState();
+  }
   @override
 
   Widget build(BuildContext context) {
+
+    print("El evento es mio: ${widget.isMine}");
     return Scaffold(
       appBar: AppBar(
         title: Text("EVENTO"),
@@ -56,7 +78,7 @@ class _eventoIndividualState extends State<eventoIndividual> {
             Container(
               height: 450,
               child: FutureBuilder(
-                future: CR.mostrarTodos(widget.descripcion),
+                future: CR.mostrarTodos(widget.id),
                 builder: (context, listaRegreso) {
                   if (listaRegreso.hasData) {
                     return GridView.builder(
@@ -72,7 +94,7 @@ class _eventoIndividualState extends State<eventoIndividual> {
                         return Padding(
                           padding: EdgeInsets.all(10),
                           child: FutureBuilder(
-                            future: CR.obtenerURLimagen(widget.descripcion, nombreImagen),
+                            future: CR.obtenerURLimagen(widget.id, nombreImagen),
                             builder: (context, URL) {
                               if (URL.hasData) {
                                 return GestureDetector(
@@ -87,13 +109,22 @@ class _eventoIndividualState extends State<eventoIndividual> {
                                               Positioned(
                                                 top: 10,
                                                 right: 10,
-                                                child: IconButton(
-                                                  icon: Icon(Icons.delete, color: Colors.white,),
-                                                  onPressed: () {
-                                                    Navigator.pop(context); // Cierra el diálogo
-                                                  },
+                                                child: Opacity(
+                                                  opacity: widget.isMine ? 1.0 : 0.0, // Si isMine es true, la opacidad es 1.0 (totalmente visible), de lo contrario, 0.0 (totalmente transparente)
+                                                  child: IgnorePointer(
+                                                    ignoring: !widget.isMine,
+                                                    child: IconButton(
+                                                      icon: Icon(Icons.delete, color: Colors.white,),
+                                                      onPressed: () {
+                                                        //BORRAR FOTO
+                                                        CR.eliminarImagen(widget.descripcion, nombreImagen).then((value) {
+                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("IMAGEN ELIMINADA.")));
+                                                        });
+                                                      },
+                                                    ),
+                                                    ),
+                                                  )
                                                 ),
-                                              ),
                                             ],
                                           ),
                                         );
@@ -124,42 +155,64 @@ class _eventoIndividualState extends State<eventoIndividual> {
                 },
               ),
             ),
-
-
-
-            SizedBox(height: 10,),
             Center(
-              child: ElevatedButton(
-                  onPressed: () async{
-                    final archivoAEnviar = await FilePicker.platform.pickFiles(
-                      allowMultiple: false,
-                      type: FileType.custom,
-                      allowedExtensions: ['png','jpg','jpeg']
-                    );
+              child: Opacity(
+                  opacity: widget.isMine ? 1.0 : 0.0, // Si isMine es true, la opacidad es 1.0 (totalmente visible), de lo contrario, 0.0 (totalmente transparente)
+                  child: IgnorePointer(
+                    ignoring: !widget.isMine,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        DB.cambiarEstado(widget.id).then((value) {
+                          setState(() async {
+                            bool? estado = await DB.obtenerEstado(widget.id);
 
-                    if(archivoAEnviar==null){
-                      setState(() {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ERROR! No se seleccionó ARCHIVO")));
-                      });
-                      return;
-                    }
+                            if (estado == true) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("EVENTO ABIERTO")));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("EVENTO CERRADO")));
+                            }
 
-                    var path = archivoAEnviar.files.single.path!!;
-                    var nombre = archivoAEnviar.files.single.name!!;
-                    var nombreCarpeta = widget.descripcion;
+                            setStatus();
+                          });
+                        });
+                      },
+                      child: Text(estatusEvento),
+                    ),
 
-                    setState(() {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("SUBIENDO ARCHIVO")));
-                    });
-
-                    CR.subirArchivo(path, nombre, nombreCarpeta);
-
-                  },
-                  child: Text("AGREGAR FOTOS")
+                  )
               ),
             )
+
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async{
+          final archivoAEnviar = await FilePicker.platform.pickFiles(
+              allowMultiple: false,
+              type: FileType.custom,
+              allowedExtensions: ['png','jpg','jpeg']
+          );
+
+          if(archivoAEnviar==null){
+            setState(() {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ERROR! No se seleccionó ARCHIVO")));
+            });
+            return;
+          }
+
+          var path = archivoAEnviar.files.single.path!!;
+          var nombre = archivoAEnviar.files.single.name!!;
+          var nombreCarpeta = widget.id;
+
+          setState(() {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("SUBIENDO ARCHIVO")));
+          });
+
+          CR.subirArchivo(path, nombre, nombreCarpeta);
+
+        },
+        child: Icon(Icons.add),
       ),
     );
 

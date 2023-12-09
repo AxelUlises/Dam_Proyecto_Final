@@ -68,7 +68,7 @@ class DB{
 
   static Future<List> misInvitaciones(String uid) async{
     List temp = [];
-    var query = await baseremota.collection("eventos").where('invitados', arrayContains: uid).get();
+    var query = await baseremota.collection("eventos").where('invitados', arrayContains: uid).where('estatus', isEqualTo: true).get();
 
     query.docs.forEach((element) {
       Map<String, dynamic> dato = element.data();
@@ -138,8 +138,60 @@ class DB{
     }
   }
 
+  static Future cambiarEstado(String id) async {
+    try {
+      // Referencia al documento en la colección "eventos"
+      var referenciaEvento = await baseremota.collection("eventos").doc(id).get();
 
+      if (referenciaEvento.exists) {
+        // Verificar si el documento existe antes de acceder a sus datos
+        Map<String, dynamic>? mapa = referenciaEvento.data();
 
+        if (mapa != null && mapa.isNotEmpty) {
+          // Cambiar el valor del campo "estatus" a false
+          var valor = !mapa['estatus'];
+          baseremota.collection("eventos").doc(id).update({'estatus': valor});
+        } else {
+          print("El documento está vacío o no contiene datos.");
+        }
+      } else {
+        print("El documento con ID $id no existe.");
+      }
+
+      print("Evento cerrado con éxito. Campo 'estatus' cambiado a false.");
+    } catch (e) {
+      // Manejar el error según sea necesario
+      print("Error al cerrar el evento: $e");
+    }
+  }
+
+  static Future<bool?> obtenerEstado(String id) async {
+    try {
+      // Referencia al documento en la colección "eventos"
+      var referenciaEvento = await baseremota.collection("eventos").doc(id).get();
+
+      if (referenciaEvento.exists) {
+        // Verificar si el documento existe antes de acceder a sus datos
+        Map<String, dynamic>? mapa = referenciaEvento.data();
+
+        if (mapa != null && mapa.isNotEmpty && mapa.containsKey('estatus')) {
+          // Obtener el valor actual del campo "estatus"
+          var estado = mapa['estatus'];
+          return estado;
+        } else {
+          print("El documento está vacío, no contiene datos o no tiene el campo 'estatus'.");
+          return null; // Indica que no se pudo obtener el estado
+        }
+      } else {
+        print("El documento con ID $id no existe.");
+        return null; // Indica que no se pudo obtener el estado
+      }
+    } catch (e) {
+      // Manejar el error según sea necesario
+      print("Error al obtener el estado del evento: $e");
+      return null; // Indica que no se pudo obtener el estado
+    }
+  }
 }
 
 class CR{
@@ -156,6 +208,21 @@ class CR{
 
   static Future<String> obtenerURLimagen(String nombreCarpeta,String nombre)async{
     return await carpetaRemota.ref("$nombreCarpeta/$nombre").getDownloadURL();
+  }
+
+  static Future<void> eliminarImagen(String nombreCarpeta, String nombreImagen) async {
+    try {
+      // Obtener la referencia del archivo a eliminar
+      var referenciaArchivo = carpetaRemota.ref("$nombreCarpeta/$nombreImagen");
+
+      // Eliminar el archivo
+      await referenciaArchivo.delete();
+
+      print("Imagen eliminada correctamente.");
+    } catch (error) {
+      print("Error al eliminar la imagen: $error");
+      // Puedes manejar el error de acuerdo a tus necesidades
+    }
   }
 
 }

@@ -209,16 +209,12 @@ class _inicioAppState extends State<inicioApp> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => eventoIndividual(
-                                      descripcion: listaJSON.data?[indice]
-                                              ['descripcion'] ??
-                                          '',
-                                      tipoEvento: listaJSON.data?[indice]
-                                              ['tipoEvento'] ??
-                                          '',
-                                      propietario: listaJSON.data?[indice]
-                                              ['nombrePropietario'] ??
-                                          '',
+                                      descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
+                                      tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
+                                      propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
                                       id: listaJSON.data?[indice]['id'] ?? '',
+                                      isMine: listaJSON.data?[indice]['propietario'] == uid,
+
                                     ),
                                   ),
                                 );
@@ -402,20 +398,16 @@ class _inicioAppState extends State<inicioApp> {
                           return Card(
                             child: InkWell(
                               onTap: () {
+                                print("${listaJSON.data?[indice]['nombrePropietario']}, ${uid}");
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => eventoIndividual(
-                                      descripcion: listaJSON.data?[indice]
-                                              ['descripcion'] ??
-                                          '',
-                                      tipoEvento: listaJSON.data?[indice]
-                                              ['tipoEvento'] ??
-                                          '',
-                                      propietario: listaJSON.data?[indice]
-                                              ['nombrePropietario'] ??
-                                          '',
+                                      descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
+                                      tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
+                                      propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
                                       id: listaJSON.data?[indice]['id'] ?? '',
+                                      isMine: listaJSON.data?[indice]['propietario'] == uid,
                                     ),
                                   ),
                                 );
@@ -559,7 +551,7 @@ class _inicioAppState extends State<inicioApp> {
                   'tipoEvento': tipoEvento.text,
                   'fechainicio': fechaInicio.text,
                   'fechafinal': fechaFinal.text,
-                  'fotos': [],
+                  'estatus:': true,
                   'invitados': [],
                 };
 
