@@ -551,7 +551,7 @@ class _inicioAppState extends State<inicioApp> {
                   'tipoEvento': tipoEvento.text,
                   'fechainicio': fechaInicio.text,
                   'fechafinal': fechaFinal.text,
-                  'estatus:': true,
+                  'estatus': true,
                   'invitados': [],
                 };
 
