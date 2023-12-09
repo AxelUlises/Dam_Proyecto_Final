@@ -75,8 +75,34 @@ class _eventoIndividualState extends State<eventoIndividual> {
                             future: CR.obtenerURLimagen(widget.descripcion, nombreImagen),
                             builder: (context, URL) {
                               if (URL.hasData) {
-                                return Container(
-                                  child: Image.network(URL.data!, fit: BoxFit.cover),
+                                return GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          child: Stack(
+                                            children: [
+                                              Image.network(URL.data!, fit: BoxFit.contain),
+                                              Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: IconButton(
+                                                  icon: Icon(Icons.delete, color: Colors.white,),
+                                                  onPressed: () {
+                                                    Navigator.pop(context); // Cierra el diálogo
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    child: Image.network(URL.data!, fit: BoxFit.cover),
+                                  ),
                                 );
                               } else if (URL.hasError) {
                                 return Text('Error loading image');
@@ -98,6 +124,7 @@ class _eventoIndividualState extends State<eventoIndividual> {
                 },
               ),
             ),
+
 
 
             SizedBox(height: 10,),
