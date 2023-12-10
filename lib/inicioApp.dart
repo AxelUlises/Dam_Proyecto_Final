@@ -180,85 +180,127 @@ class _inicioAppState extends State<inicioApp> {
 
   Widget misEventos() {
     return FutureBuilder(
-        future: DB.misEventos(uid),
-        builder: (context, listaJSON) {
-          if (listaJSON.hasData) {
-            print(
-                "Eventos encontrados: ${listaJSON.data} para el usuario $uid");
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 30),
-                Text(
-                  "MIS EVENTOS",
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 40,
-                      fontFamily: 'BebasNeue'),
+      future: DB.misEventos(uid),
+      builder: (context, listaJSON) {
+        if (listaJSON.hasData) {
+          print("Eventos encontrados: ${listaJSON.data} para el usuario $uid");
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 30),
+              Text(
+                "MIS EVENTOS",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 40,
+                  fontFamily: 'BebasNeue',
                 ),
-                SizedBox(height: 20),
-                Expanded(
-                    child: ListView.builder(
-                        itemCount: listaJSON.data?.length,
-                        itemBuilder: (context, indice) {
-                          return Card(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => eventoIndividual(
-                                      descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
-                                      tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
-                                      propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
-                                      id: listaJSON.data?[indice]['id'] ?? '',
-                                      isMine: listaJSON.data?[indice]['propietario'] == uid,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: listaJSON.data?.length,
+                  itemBuilder: (context, indice) {
+                    return FutureBuilder(
+                      future: CR.obtenerPrimeraImagenDeAlbum(
+                        '${listaJSON.data?[indice]['id']}',
+                      ),
+                      builder: (context, snapshot) {
+                        String primeraImagen = snapshot.data ?? '';
 
-                                    ),
+                        return Card(
+                          elevation: 5,
+                          margin: EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => eventoIndividual(
+                                    descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
+                                    tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
+                                    propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
+                                    id: listaJSON.data?[indice]['id'] ?? '',
+                                    isMine: listaJSON.data?[indice]['propietario'] == uid,
                                   ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Foto en la parte superior
-                                    Image.network(
-                                      "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Text(
-                                        listaJSON.data?[indice]['descripcion']),
-                                    Text(
-                                        "Tipo de evento ${listaJSON.data?[indice]['tipoEvento']}"),
-                                    TextButton(
-                                        onPressed: () {
-                                          Clipboard.setData(ClipboardData(
-                                              text:
-                                                  "${listaJSON.data?[indice]['id']}"));
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      "Codigo de invitacion copiado")));
-                                        },
-                                        child:
-                                            const Text("Copiar ID invitacion"))
-                                  ],
                                 ),
-                              ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Mostrar la primera imagen si está disponible, de lo contrario, mostrar la imagen genérica
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15),
+                                  ),
+                                  child: Image.network(
+                                    primeraImagen.isNotEmpty
+                                        ? primeraImagen
+                                        : "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                                    width: double.infinity,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        listaJSON.data?[indice]['descripcion'],
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Tipo de evento: ${listaJSON.data?[indice]['tipoEvento']}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Clipboard.setData(
+                                            ClipboardData(
+                                              text: "${listaJSON.data?[indice]['id']}",
+                                            ),
+                                          );
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text("Codigo de invitacion copiado"),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text("Copiar ID invitacion"),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }))
-              ],
-            );
-          }
-          return Center(child: CircularProgressIndicator());
-        });
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+        return Center(child: CircularProgressIndicator());
+      },
+    );
   }
+
+
 
   Widget formaEventos(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(
@@ -287,12 +329,13 @@ class _inicioAppState extends State<inicioApp> {
           child: Text(
             "AGREGAR EVENTO",
             style: TextStyle(
-                fontSize: 25, color: Colors.red, fontWeight: FontWeight.bold),
+              fontSize: 25,
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        SizedBox(
-          height: 20,
-        ),
+        SizedBox(height: 20),
         TextField(
           controller: numInvitacion,
           decoration: InputDecoration(
@@ -302,148 +345,181 @@ class _inicioAppState extends State<inicioApp> {
             suffixIcon: Icon(Icons.event),
           ),
         ),
-        SizedBox(
-          height: 20,
-        ),
+        SizedBox(height: 20),
         ElevatedButton(
-            onPressed: () async {
-              List<dynamic> jsonTemporal =
-                  await DB.buscarInvitacion(numInvitacion.text);
+          onPressed: () async {
+            try {
+              List<dynamic> jsonTemporal = await DB.buscarInvitacion(numInvitacion.text);
 
               setState(() {
-                propietario =
-                    "Propietario: ${jsonTemporal[0]['nombrePropietario']}";
+                propietario = "Propietario: ${jsonTemporal[0]['nombrePropietario']}";
                 des = "Descripcion: ${jsonTemporal[0]['descripcion']}";
                 fini = "Fecha Inicio: ${jsonTemporal[0]['fechainicio']}";
                 ffin = "Fecha final: ${jsonTemporal[0]['fechafinal']}";
                 tevento = "Tipo de evento: ${jsonTemporal[0]['tipoEvento']}";
               });
-            },
-            child: Text("BUSCAR")),
+            } catch (error) {
+              print("Error al buscar invitación: $error");
+              // Puedes mostrar un mensaje de error al usuario si es necesario
+            }
+          },
+          child: Text("BUSCAR"),
+        ),
+        SizedBox(height: 20),
         Container(
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "${propietario}",
-                style: TextStyle(fontFamily: 'Oswald', fontSize: 17),
-              ),
+              Text("${propietario}", style: TextStyle(fontFamily: 'Oswald', fontSize: 17)),
               SizedBox(height: 8.0),
-              Text(
-                "$des",
-                style: TextStyle(fontFamily: 'Oswald', fontSize: 17),
-              ),
+              Text("$des", style: TextStyle(fontFamily: 'Oswald', fontSize: 17)),
               SizedBox(height: 8.0),
-              Text(
-                "$fini",
-                style: TextStyle(fontFamily: 'Oswald', fontSize: 17),
-              ),
+              Text("$fini", style: TextStyle(fontFamily: 'Oswald', fontSize: 17)),
               SizedBox(height: 8.0),
-              Text(
-                "$ffin",
-                style: TextStyle(fontFamily: 'Oswald', fontSize: 17),
-              ),
+              Text("$ffin", style: TextStyle(fontFamily: 'Oswald', fontSize: 17)),
               SizedBox(height: 8.0),
-              Text(
-                "$tevento",
-                style: TextStyle(fontFamily: 'Oswald', fontSize: 17),
-              ),
+              Text("$tevento", style: TextStyle(fontFamily: 'Oswald', fontSize: 17)),
             ],
           ),
         ),
         ElevatedButton(
-            onPressed: () {
-              DB.agregarInvitado(numInvitacion.text, uid).then((value) {});
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("Evento agregado")));
-              setState(() {
-                numInvitacion.text = "";
-                propietario = "";
-                des = "";
-                fini = "";
-                ffin = "";
-                tevento = "";
+          onPressed: ()  {
+            try {
+               DB.agregarInvitado(numInvitacion.text, uid).then((value) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Evento agregado")));
+                setState(() {
+                  numInvitacion.text = "";
+                  propietario = "";
+                  des = "";
+                  fini = "";
+                  ffin = "";
+                  tevento = "";
+                  _index = 1;
+                });
               });
-            },
-            child: Text("AGREGAR")),
+
+            } catch (error) {
+              print("Error al agregar invitado: $error");
+              // Puedes mostrar un mensaje de error al usuario si es necesario
+            }
+          },
+          child: Text("AGREGAR"),
+        ),
       ],
     );
   }
 
+
   Widget invitaciones() {
     return FutureBuilder(
-        future: DB.misInvitaciones(uid),
-        builder: (context, listaJSON) {
-          if (listaJSON.hasData) {
-            print(
-                "Invitaciones encontradas: ${listaJSON.data} para el usuario $uid");
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 30),
-                Text(
-                  "MIS INVITACIONES",
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 40,
-                      fontFamily: 'BebasNeue'),
+      future: DB.misInvitaciones(uid),
+      builder: (context, listaJSON) {
+        if (listaJSON.hasData) {
+          print("Invitaciones encontradas: ${listaJSON.data} para el usuario $uid");
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 30),
+              Text(
+                "MIS INVITACIONES",
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 40,
+                  fontFamily: 'BebasNeue',
                 ),
-                SizedBox(height: 20),
-                Expanded(
-                    child: ListView.builder(
-                        itemCount: listaJSON.data?.length,
-                        itemBuilder: (context, indice) {
-                          return Card(
-                            child: InkWell(
-                              onTap: () {
-                                print("${listaJSON.data?[indice]['nombrePropietario']}, ${uid}");
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => eventoIndividual(
-                                      descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
-                                      tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
-                                      propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
-                                      id: listaJSON.data?[indice]['id'] ?? '',
-                                      isMine: listaJSON.data?[indice]['propietario'] == uid,
-                                    ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: listaJSON.data?.length,
+                  itemBuilder: (context, indice) {
+                    return FutureBuilder(
+                      future: CR.obtenerPrimeraImagenDeAlbum(
+                        '${listaJSON.data?[indice]['id']}',
+                      ),
+                      builder: (context, snapshot) {
+                        String primeraImagen = snapshot.data ?? '';
+
+                        return Card(
+                          elevation: 5,
+                          margin: EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => eventoIndividual(
+                                    descripcion: listaJSON.data?[indice]['descripcion'] ?? '',
+                                    tipoEvento: listaJSON.data?[indice]['tipoEvento'] ?? '',
+                                    propietario: listaJSON.data?[indice]['nombrePropietario'] ?? '',
+                                    id: listaJSON.data?[indice]['id'] ?? '',
+                                    isMine: listaJSON.data?[indice]['propietario'] == uid,
                                   ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Column(
-                                  children: [
-                                    // Foto en la parte superior
-                                    Image.network(
-                                      "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    SizedBox(height: 10),
-                                    // ID del evento y propietario
-                                    Text(
-                                        listaJSON.data?[indice]['descripcion']),
-                                    Text(
-                                        "Tipo de evento ${listaJSON.data?[indice]['tipoEvento']}"),
-                                  ],
                                 ),
-                              ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Mostrar la primera imagen si está disponible, de lo contrario, mostrar la imagen genérica
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15),
+                                  ),
+                                  child: Image.network(
+                                    primeraImagen.isNotEmpty
+                                        ? primeraImagen
+                                        : "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
+                                    width: double.infinity,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        listaJSON.data?[indice]['descripcion'],
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Tipo de evento: ${listaJSON.data?[indice]['tipoEvento']}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }))
-              ],
-            );
-          }
-          return Center(child: CircularProgressIndicator());
-        });
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+        return Center(child: CircularProgressIndicator());
+      },
+    );
   }
 
-  Widget formaInvitaciones(
-      IconData icono, String texto, VoidCallback onPressed) {
+
+  Widget formaInvitaciones(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
@@ -556,11 +632,12 @@ class _inicioAppState extends State<inicioApp> {
                 };
 
                 DB.creaEvento(jsonTemporal).then((idEvento) {
-                  descripcion.text = "";
-                  tipoEvento.text = "";
-                  fechaInicio.text = "";
-                  fechaFinal.text = "";
-
+                  setState(() {
+                    descripcion.text = "";
+                    tipoEvento.text = "";
+                    fechaInicio.text = "";
+                    fechaFinal.text = "";
+                  });
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -580,17 +657,20 @@ class _inicioAppState extends State<inicioApp> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                Clipboard.setData(
-                                    ClipboardData(text: idEvento));
-                                Navigator.of(context)
-                                    .pop(); // Cerrar el AlertDialog
+                                Clipboard.setData(ClipboardData(text: idEvento));
+                                setState(() {
+                                  _index = 0;
+                                });
+                                Navigator.of(context).pop(); // Cerrar el AlertDialog
                               },
                               child: Text("Copiar enlace"),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context)
-                                    .pop(); // Cerrar el AlertDialog
+                                setState(() {
+                                  _index = 0;
+                                });
+                                Navigator.of(context).pop(); // Cerrar el AlertDialog
                               },
                               child: Text("Cerrar"),
                             ),

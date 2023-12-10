@@ -225,6 +225,28 @@ class CR{
     }
   }
 
+  static Future<String?> obtenerPrimeraImagenDeAlbum(String nombreCarpeta) async {
+    try {
+      // Obtén la lista de elementos en la carpeta (imágenes)
+      ListResult result = await carpetaRemota.ref(nombreCarpeta).list();
+
+      // Ordena las imágenes por nombre
+      result.items.sort((a, b) => a.name.compareTo(b.name));
+
+      // Si hay al menos una imagen, devuelve la URL de la primera
+      if (result.items.isNotEmpty) {
+        return await result.items.first.getDownloadURL();
+      } else {
+        // Si no hay imágenes, puedes devolver una URL predeterminada o null
+        return null;
+      }
+    } catch (e) {
+      print('Error al obtener la primera imagen del álbum: $e');
+      return null;
+    }
+  }
+
+
 }
 
 

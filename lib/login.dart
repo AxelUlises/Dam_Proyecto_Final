@@ -37,7 +37,7 @@ class _loginState extends State<login> {
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error al Iniciar Sesión $e"),
+          content: Text("Error al Iniciar Sesión, Usuario o Contraseña incorrectas. "),
         ),
       );
     }
