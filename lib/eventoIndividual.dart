@@ -122,9 +122,7 @@ class _eventoIndividualState extends State<eventoIndividual> {
                                                         // BORRAR FOTO
                                                         CR.eliminarImagen(widget.id, nombreImagen).then((value) {
                                                           ScaffoldMessenger.of(dialogContext).showSnackBar(SnackBar(content: Text("IMAGEN ELIMINADA.")));
-                                                          setState(() {
-
-                                                          });
+                                                          setState(() {});
 
                                                           // Usar la variable dialogContext en lugar de context
                                                           Navigator.of(dialogContext).pop();

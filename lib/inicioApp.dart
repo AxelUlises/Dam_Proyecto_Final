@@ -232,7 +232,6 @@ class _inicioAppState extends State<inicioApp> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Mostrar la primera imagen si está disponible, de lo contrario, mostrar la imagen genérica
                                 ClipRRect(
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(15),
@@ -243,14 +242,14 @@ class _inicioAppState extends State<inicioApp> {
                                         ? primeraImagen
                                         : "https://img.freepik.com/vector-premium/icono-galeria-fotos-vectorial_723554-144.jpg?w=2000",
                                     width: double.infinity,
-                                    height: 150,
+                                    height: 130,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Text(
                                         listaJSON.data?[indice]['descripcion'],
@@ -260,25 +259,87 @@ class _inicioAppState extends State<inicioApp> {
                                         ),
                                       ),
                                       Text(
-                                        "Tipo de evento: ${listaJSON.data?[indice]['tipoEvento']}",
+                                        "${listaJSON.data?[indice]['tipoEvento']}",
                                         style: TextStyle(
                                           fontSize: 16,
                                         ),
                                       ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Clipboard.setData(
-                                            ClipboardData(
-                                              text: "${listaJSON.data?[indice]['id']}",
-                                            ),
-                                          );
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text("Codigo de invitacion copiado"),
-                                            ),
-                                          );
-                                        },
-                                        child: const Text("Copiar ID invitacion"),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          IconButton(
+                                              onPressed: (){
+                                                Clipboard.setData(
+                                                  ClipboardData(
+                                                    text: "${listaJSON.data?[indice]['id']}",
+                                                  ),
+                                                );
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text("Código de invitación copiado al portapapeles."),
+                                                  ),
+                                                );
+                                              },
+                                              icon: Icon(Icons.copy, color: Colors.black87,)
+                                          ),
+                                          SizedBox(width: 20,),
+                                          IconButton(
+                                              onPressed: (){
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title: Center(
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            Icon(Icons.warning_amber_outlined, color: Colors.red),
+                                                            SizedBox(width: 8),
+                                                            Text("Comprobar eliminación.", style: TextStyle(color: Colors.red)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      content: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            "¿Está seguro de eliminar el evento?",
+                                                            style: TextStyle(fontSize: 16),
+                                                          ),
+                                                          SizedBox(height: 8),
+                                                          Text(
+                                                            "${listaJSON.data?[indice]['descripcion']}",
+                                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            DB.eliminarEvento("${listaJSON.data?[indice]['id']}").then((value) {
+                                                              setState(() {});
+                                                            });
+                                                            Navigator.of(context).pop(); // Cerrar el AlertDialog
+                                                          },
+                                                          child: Text("Aceptar"),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              _index = 0;
+                                                            });
+                                                            Navigator.of(context).pop(); // Cerrar el AlertDialog
+                                                          },
+                                                          child: Text("Cancelar"),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              icon: Icon(Icons.close, color: Colors.red,)
+                                          ),
+                                        ],
                                       )
                                     ],
                                   ),
@@ -299,8 +360,6 @@ class _inicioAppState extends State<inicioApp> {
       },
     );
   }
-
-
 
   Widget formaEventos(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(
@@ -410,7 +469,6 @@ class _inicioAppState extends State<inicioApp> {
     );
   }
 
-
   Widget invitaciones() {
     return FutureBuilder(
       future: DB.misInvitaciones(uid),
@@ -492,11 +550,72 @@ class _inicioAppState extends State<inicioApp> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      Text(
-                                        "Tipo de evento: ${listaJSON.data?[indice]['tipoEvento']}",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "${listaJSON.data?[indice]['tipoEvento']}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: Center(
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Icon(Icons.warning_amber_outlined, color: Colors.red),
+                                                          SizedBox(width: 8),
+                                                          Text("Comprobar eliminación.", style: TextStyle(color: Colors.red)),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    content: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                          "¿Está seguro de eliminar el evento?",
+                                                          style: TextStyle(fontSize: 16),
+                                                        ),
+                                                        SizedBox(height: 8),
+                                                        Text(
+                                                          "${listaJSON.data?[indice]['descripcion']}",
+                                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          DB.eliminarInvitado("${listaJSON.data?[indice]['id']}", uid).then((value) {
+                                                            setState(() {});
+                                                          });
+                                                          Navigator.of(context).pop();
+                                                        },
+                                                        child: Text("Aceptar"),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            _index = 0;
+                                                          });
+                                                          Navigator.of(context).pop();
+                                                        },
+                                                        child: Text("Cancelar"),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            icon: Icon(Icons.close, color: Colors.red,),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -510,6 +629,7 @@ class _inicioAppState extends State<inicioApp> {
                   },
                 ),
               ),
+
             ],
           );
         }
@@ -517,7 +637,6 @@ class _inicioAppState extends State<inicioApp> {
       },
     );
   }
-
 
   Widget formaInvitaciones(IconData icono, String texto, VoidCallback onPressed) {
     return ElevatedButton(

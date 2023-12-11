@@ -11,6 +11,40 @@ class DB{
     return eventoRef.id;
   }
 
+  static Future<void> eliminarEvento(String id) async {
+    await baseremota.collection("eventos").doc(id).delete();
+  }
+
+  static Future<void> eliminarInvitado(String idEvento, String idInvitado) async {
+    try {
+      // Obtener una referencia al documento del evento
+      DocumentReference eventoRef = FirebaseFirestore.instance.collection('eventos').doc(idEvento);
+
+      // Obtener el documento actual
+      DocumentSnapshot eventoSnapshot = await eventoRef.get();
+
+      if (eventoSnapshot.exists) {
+        // Obtener los datos actuales del evento
+        Map<String, dynamic> datosEvento = eventoSnapshot.data() as Map<String, dynamic>;
+
+        // Obtener la lista de invitados
+        List<dynamic> invitados = datosEvento['invitados'] ?? [];
+
+        // Eliminar el idInvitado de la lista de invitados
+        invitados.remove(idInvitado);
+
+        // Actualizar el campo 'invitados' en Firestore
+        await eventoRef.update({'invitados': invitados});
+
+        print('Invitado eliminado correctamente.');
+      } else {
+        print('El evento con ID $idEvento no existe.');
+      }
+    } catch (error) {
+      print('Error al eliminar el invitado: $error');
+    }
+  }
+
   static Future<String> creaUsuario(Map<String, dynamic> usuario) async {
     DocumentReference eventoRef = await baseremota.collection("usuarios").add(usuario);
     return eventoRef.id;
@@ -245,7 +279,6 @@ class CR{
       return null;
     }
   }
-
 
 }
 
